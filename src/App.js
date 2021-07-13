@@ -163,7 +163,7 @@ class App extends Component {
           await this.getAllOffers();
         });
       
-      await offerRegistryContractInstance.methods.newSubscription(selectedOfferIndex, timeInSeconds).send({ from: this.state.accounts[0], gasLimit: 10000000, value: amount });
+      await offerRegistryContractInstance.methods.newSubscription(selectedOfferIndex, timeInSeconds).send({ from: this.state.accounts[0], gasLimit: 8000000, value: amount });
       // TODO: update account balance after transaction
       // await this.updateAccountBalance();
       // TODO: remove event listener after succesful transaction
