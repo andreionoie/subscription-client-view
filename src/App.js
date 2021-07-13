@@ -88,8 +88,8 @@ class App extends Component {
     }
   }
 
-  getContractInstance = async (contractJSON, isWebSocket = false, customAdress = null) => {
-    const localWeb3 = isWebSocket ? this.web3WebSocket : this.web3;
+  getContractInstance = async (contractJSON, customAdress = null) => {
+    const localWeb3 = this.web3;
     try {
       if (customAdress) {
         return new localWeb3.eth.Contract(contractJSON.abi, customAdress);
@@ -121,7 +121,7 @@ class App extends Component {
       this.setState({ allOffersDetails: [] });
       return;
     }
-    let offerRegistryInstance = await this.getContractInstance(EntityOfferRegistry, false, this.state.offerRegistryContractAddress);
+    let offerRegistryInstance = await this.getContractInstance(EntityOfferRegistry, this.state.offerRegistryContractAddress);
 
     const offerCount = await offerRegistryInstance.methods.offerCount().call();
 
@@ -142,20 +142,19 @@ class App extends Component {
   }
 
   loadOffersFromContract = async () => {
-    let offerRegistryContractInstance = await this.getContractInstance(EntityOfferRegistry, true, this.state.offerRegistryContractAddress);
+    let offerRegistryContractInstance = await this.getContractInstance(EntityOfferRegistry, this.state.offerRegistryContractAddress);
     console.log(offerRegistryContractInstance);
     await this.getAllOffers();
   }
 
   createSubscription = async () => {
     let selectedOfferIndex = this.state.subscriptionInfo.index;
-    let offerRegistryContractInstanceWebSocket = await this.getContractInstance(EntityOfferRegistry, true, this.state.offerRegistryContractAddress);
-    let offerRegistryContractInstance = await this.getContractInstance(EntityOfferRegistry, false, this.state.offerRegistryContractAddress);
+    let offerRegistryContractInstance = await this.getContractInstance(EntityOfferRegistry, this.state.offerRegistryContractAddress);
     let timeInSeconds = this.state.subscriptionTime * 60;
     try {
       let amount = await offerRegistryContractInstance.methods.computeFee(selectedOfferIndex, timeInSeconds).call();
 
-      let emitter = offerRegistryContractInstanceWebSocket.events.SubscriptionAdded({ filter: { newSubscriptionOwner: this.state.accounts[0] } })
+      let emitter = offerRegistryContractInstance.events.SubscriptionAdded({ filter: { newSubscriptionOwner: this.state.accounts[0] } })
         .on("data", async (evt) => {
           // evt.returnValues = {offerOwner, subscriptionOffer, offerIndex}
           // this.setState({ newOfferNotification: evt.transactionHash })
